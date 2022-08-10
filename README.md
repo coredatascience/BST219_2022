@@ -41,7 +41,7 @@ materials to go.
 in the folder you selected in step 2.
 4. Now, you can open this project using the projects tab in the upper
 right of RStudio, or going to File > Open Project and then navigating
-to the 2021 folder and opening the `.Rproj` file.
+to the `BST219_2022` folder and opening the `.Rproj` file.
 
 If you already cloned the repository outside of RStudio (e.g. using
 Git Bash), you can associate the directory that was created in that
@@ -57,7 +57,7 @@ use `git pull` to get updates.
 
 In RStudio, if you followed the instructions above, simply navigate
 to the Git tab and press the Pull button. In terminal / Git bash, use
-`cd` to navigate to the `2021` folder, then run `git pull`.
+`cd` to navigate to the `BST219_2022` folder, then run `git pull`.
 
 
 # Taking Notes on Course Materials
