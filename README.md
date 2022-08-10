@@ -10,6 +10,10 @@
 * hemattie@hsph.harvard.edu
 
 # Teaching Assistants
+* Rebecca Astatke - rastatke@g.harvard.edu
+* Luke Benz - lukebenz@g.harvard.edu
+* Carmen Rodriguez Cabrera - crodriguezcabrera@g.harvard.edu
+* Jerry Chang - chiarui_chang@g.harvard.edu
 
 
 # Office Hours
