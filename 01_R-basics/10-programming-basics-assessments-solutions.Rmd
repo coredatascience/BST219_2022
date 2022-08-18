@@ -1,0 +1,59 @@
+## Assessments
+
+
+1. What will this conditional expression return?
+
+    ```{r}
+    x <- c(1,2,-3,4)
+    
+    if(all(x>0)){
+      print("All positives")
+    } else{
+      print("Not all positives")
+    }
+    ```
+
+"Not all positives", because there is at least one element of `x` that is not positive, namely the 3rd one.
+
+2. Which of the following expressions is always `FALSE` when at least one entry of a logical vector `x` is TRUE?
+
+    A. `all(x)`
+    B. `any(x)`
+    C. `any(!x)`
+    D. `all(!x)`
+
+D. If at least one entry of `x` is `TRUE`, the at least one entry of `!x` is `FALSE`. Therefore, `all(!x)` is `FALSE` since there is at least one entry of `!x` that is `FALSE`.
+
+Here are counterexample for the other three choices:
+
+```{r}
+# counter-example for A that returns TRUE
+x <- c(TRUE, TRUE)
+all(x)
+    
+# counter-example for B and C that return TRUE
+x <- c(TRUE, FALSE)
+any(x)
+any(!x)
+```
+
+3. The function `nchar` tells you how many characters long a character vector is. For example:
+
+    
+```{r}
+library(dslabs)
+data(murders)
+char_len <- nchar(murders$state)
+char_len[1:5]
+```
+
+
+Write a line of code that assigns to the object `new_names` the state abbreviation when the state name is longer than 8 characters.
+
+```{r}
+new_names <- ifelse(nchar(murders$state) > 8,
+                    murders$abb,
+                    murders$state)
+new_names
+```   
+
