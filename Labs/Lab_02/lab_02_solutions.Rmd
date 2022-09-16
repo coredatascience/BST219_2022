@@ -149,10 +149,7 @@ df <- df %>% arrange(country,year) %>%
   mutate(newcountryflag = (country == lag(country))) %>% 
   mutate(popchange = popchangeraw)
 
-## Note: this works because the last year for each country has missing population. If this was not the case, we would need to deal with the fact that, when the country changes, there is a new baseline for the change in population
-
-# Note: because of the data structure, don't even need flag
-#(df %>% arrange(country,year) %>% mutate(popchange = (population - lag(population))))[,c("country", "year","population","popchange")]
+## Note: this works because the last year for each country has missing population. If this was not the case, we would need to deal with the fact that, when the country changes (when we start calculations for the next country), there is a new (correct) baseline for the change in population. In other words, we are making sure we are using the same country when making the calculation each time. We didn't group by country here so the lag function doesn't know when the calculations for a new country start/end and will just use the previous row to calculate the value for the current row, regardless of country. The flag here makes sure we are calculating the change in population within the same country and not across countries. Because of the data structure here (the last year for each country has NA for population), the flag isn't actually needed. But, if we had that data available, we would need the flag.
 ```
 
 
