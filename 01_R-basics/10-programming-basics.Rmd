@@ -186,7 +186,7 @@ lines(n, n*(n+1)/2)
 
 ### Other functions
 
-It turns out that we rarely use for loops in R. This is because there are usually more powerful ways to perform the same task. Functions that are typically used instead of for loops are the apply family: `apply`, `sapply`, `tapply`, and `mapply`. We do not cover these functions in this course but they are worth learning if you intend to go beyond this introduction. Other functions that are widely used are `split`, `cut`, and `Reduce`.
+It turns out that we rarely use for loops in R. This is because there are usually more powerful ways to perform the same task. Functions that are typically used instead of for loops are the apply family: `apply`, `sapply`, `tapply`, and `mapply`. We cover some of these functions in this course but they are all worth learning if you intend to go beyond this introduction. Other functions that are widely used are `split`, `cut`, and `Reduce`.
 
 
 

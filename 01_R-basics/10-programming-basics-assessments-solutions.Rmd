@@ -22,7 +22,7 @@
     C. `any(!x)`
     D. `all(!x)`
 
-D. If at least one entry of `x` is `TRUE`, the at least one entry of `!x` is `FALSE`. Therefore, `all(!x)` is `FALSE` since there is at least one entry of `!x` that is `FALSE`.
+D. If at least one entry of `x` is `TRUE`, then at least one entry of `!x` is `FALSE`. Therefore, `all(!x)` is `FALSE` since there is at least one entry of `!x` that is `FALSE`.
 
 Here are counterexample for the other three choices:
 
