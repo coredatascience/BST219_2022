@@ -30,7 +30,7 @@ file.copy(filename, "murders.csv")
 
 You should be able to see the file in your working directory and can check using
 
-```{r, eval=FALSE}
+```{r}
 list.files()
 ```
 
@@ -45,24 +45,29 @@ head(dat)
 
 We can see that we have read in the file.
 
-Warning: `read.csv` automatically converts characters to factors. Note for example that: 
+Warning: `read.csv` automatically reads in string variables as class `character`. Note for example that: 
 
 ```{r}
 class(dat$state)
 ```
 
-You can avoid this using 
+If you want your variables to be factors (categorical) instead, you can use the argument `stringsAsFactors = TRUE`:
 
 ```{r}
-dat <- read.csv("murders.csv", stringsAsFactors = FALSE)
+dat <- read.csv("murders.csv", stringsAsFactors = TRUE)
 class(dat$state)
 ```
 
-With this call the region variable is no longer a factor but we can easily change this with:
+However, this will make all character variables factor variables. If you don't want this and only want specific columns to be changed into factor variables, you can do so manually. 
+
+With this call we can change the `region` variable to a factor with:
 
 ```{r, warning=FALSE, message=FALSE}
 require(dplyr)
-dat <- mutate(dat, region = as.factor(region))
+
+dat <- read.csv("murders.csv")
+dat <- dat %>% mutate(region = as.factor(region))
+head(dat)
 ```
 
 
