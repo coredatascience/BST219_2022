@@ -29,7 +29,7 @@ We will describe histograms as they relate to distributions in the next section.
 
 ```{r, warning=FALSE, message=FALSE}
 library(dplyr)
-murders <- mutate(murders, murder_rate = total / population * 100000)
+murders <- murders %>% mutate(murder_rate = total / population * 100000)
 hist(murders$murder_rate)
 ```
 
