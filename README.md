@@ -22,14 +22,14 @@ Note: all office hours will be held in-person AND online via Zoom links in Canva
 
 | Day      | Time | Location     |
 | :---     |    :----   |    :--- |
-| Monday   | TBD  | TBD |
-| Monday   | TBD  | TBD |
-| Tuesday  | TBD  | TBD |
-| Wednesday | TBD | TBD |
-| Thursday  | TBD | TBD |
+| Monday   | 1:00-2:00pm  | Zoom |
+| Monday   | 1:30-2:30pm  | FXB G11 |
+| Tuesday  | 2:30-3:30pm  | Heather's office (Building 1, 4th floor, room 421A) |
+| Wednesday | 10:30-11:30am | FXB G10 |
+| Thursday  | 2:00-3:00pm | Building 2, 4th floor, room 401 (Biostats chair's conference room) |
 
 # Labs
-
+Fridays 11:30am-1:00pm FXB G11
 
 # Downloading course materials using Git with RStudio
 
