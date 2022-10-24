@@ -114,7 +114,7 @@ head(dat)
 
 ### R-base functions
 
-R-base also provides import functions. These have similar names to those in the `tidyverse`: `read.table`, `read.csv` and `read.delim` for example. There are a couple of important differences. To show this we read the data with an R-base function:
+R-base also provides import functions. These have similar names to those in the `tidyverse`: `read.table`, `read.csv` and `read.delim` for example. 
 
 ```{r}
 dat2 <- read.csv(filename)
@@ -126,14 +126,6 @@ One difference is that now we have a data frame and not a tibble:
 class(dat2)
 ```
 
-The other difference is that the characters are converted to factors:
-
-```{r}
-class(dat2$abb)
-class(dat2$region)
-```
-
-This can be avoided by setting the argument `stringsAsFactors` to FALSE.
 
 ### Downloading files
 

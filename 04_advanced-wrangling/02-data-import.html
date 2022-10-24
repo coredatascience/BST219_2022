@@ -439,12 +439,13 @@ files included in this directory using the function
 list.files(path)</code></pre>
 <pre><code>## [1] &quot;2010_bigfive_regents.xls&quot;                               
 ## [2] &quot;carbon_emissions.csv&quot;                                   
-## [3] &quot;HRlist2.txt&quot;                                            
-## [4] &quot;life-expectancy-and-fertility-two-countries-example.csv&quot;
-## [5] &quot;murders.csv&quot;                                            
-## [6] &quot;olive.csv&quot;                                              
-## [7] &quot;RD-Mortality-Report_2015-18-180531.pdf&quot;                 
-## [8] &quot;ssa-death-probability.csv&quot;</code></pre>
+## [3] &quot;fertility-two-countries-example.csv&quot;                    
+## [4] &quot;HRlist2.txt&quot;                                            
+## [5] &quot;life-expectancy-and-fertility-two-countries-example.csv&quot;
+## [6] &quot;murders.csv&quot;                                            
+## [7] &quot;olive.csv&quot;                                              
+## [8] &quot;RD-Mortality-Report_2015-18-180531.pdf&quot;                 
+## [9] &quot;ssa-death-probability.csv&quot;</code></pre>
 <p>Now that we know the location of these files, we are ready to import
 them into R. To make the code simpler and following along easier, you
 can move this file to your working directory. You can do this through
@@ -584,21 +585,11 @@ used for each column. Also note that <code>dat</code> is a
 <h3>R-base functions</h3>
 <p>R-base also provides import functions. These have similar names to
 those in the <code>tidyverse</code>: <code>read.table</code>,
-<code>read.csv</code> and <code>read.delim</code> for example. There are
-a couple of important differences. To show this we read the data with an
-R-base function:</p>
+<code>read.csv</code> and <code>read.delim</code> for example.</p>
 <pre class="r"><code>dat2 &lt;- read.csv(filename)</code></pre>
 <p>One difference is that now we have a data frame and not a tibble:</p>
 <pre class="r"><code>class(dat2)</code></pre>
 <pre><code>## [1] &quot;data.frame&quot;</code></pre>
-<p>The other difference is that the characters are converted to
-factors:</p>
-<pre class="r"><code>class(dat2$abb)</code></pre>
-<pre><code>## [1] &quot;character&quot;</code></pre>
-<pre class="r"><code>class(dat2$region)</code></pre>
-<pre><code>## [1] &quot;character&quot;</code></pre>
-<p>This can be avoided by setting the argument
-<code>stringsAsFactors</code> to FALSE.</p>
 </div>
 <div id="downloading-files" class="section level3">
 <h3>Downloading files</h3>
@@ -627,7 +618,7 @@ first actually creates a directory with a name that is very likely to be
 unique. Similarly, <code>tempfile</code> creates a character string, not
 a file, that is likely to be a unique filename:</p>
 <pre class="r"><code>tempfile()</code></pre>
-<pre><code>## [1] &quot;/var/folders/sz/1h16t5451t7fwqzdsv9rf1hr0000gn/T//RtmpSsGVqN/filec7991a12441a&quot;</code></pre>
+<pre><code>## [1] &quot;/var/folders/x0/l1zpxk8x7635_t_sj0zmbvnm0000gn/T//RtmpIXzLwx/fileb2d97fb33cb&quot;</code></pre>
 <p>So you can run commands like this which erases the temporary file
 once it imports the data:</p>
 <pre class="r"><code>tmp_filename &lt;- tempfile()
