@@ -1,0 +1,258 @@
+## Multivariate Regression
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dslabs)
+ds_theme_set()
+set.seed(0)
+```
+
+Up to this point, we have focused mainly on _univariate_ variables. However, in data science applications it is very common to be interested in the relationship between two or more variables. For instance, in our prenatal example we are interested in the relationship between birthweight and participation in the First Steps program, but we know other variables, like gestational age and smoking status, affect birthweight. We will come back to this example, but first we introduce necessary concepts needed to understand regression using a simpler example. We will actually use the dataset from which regression was born.
+
+The example is from genetics. [Francis Galton](https://en.wikipedia.org/wiki/Francis_Galton) studied the variation and heredity of human traits. Among many other traits, Galton collected and studied height data from families to try to understand heredity. While doing this, he developed the concepts of correlation and regression and a connection to pairs of data that follow a normal distribution. Of course, at the time this data was collected, our knowledge regarding genetics was much more limited than what we know today. A very specific question Galton tried to answer was how well can we predict a son's height based on the parents' heights. The technique he developed to answer this question, regression, can also be applied to our prenatal question: does participation in a prenatal care program increase birthweight?
+
+We have access to Galton's family height data through the `HistData` package. We will create a dataset with the heights of fathers and the first son of each family.
+
+```{r}
+library(HistData)
+data("GaltonFamilies")
+galton_heights <- GaltonFamilies %>%
+                  filter(childNum == 1 & gender == "male") %>%
+                  select(father, childHeight) %>%
+                  rename(son = childHeight)
+```
+
+Suppose we were asked to summarize these data. Since both distributions are well approximated by the normal distribution, we could use the two averages and two standard deviations as summaries:
+
+```{r, message=FALSE, warning=FALSE}
+galton_heights %>% summarize(mean(father), sd(father), mean(son), sd(son))
+```
+
+However, this summary fails to describe an important characteristic of the data: 
+
+```{r scatterplot}
+galton_heights %>% ggplot(aes(father, son)) + 
+                   geom_point(alpha = 0.5)
+```
+
+the trend that the taller the father, the taller the son. 
+
+We will learn that the correlation coefficient is a summary of how two variables move together and then see how this is used to predict.
+
+## Correlation
+
+The Greek letter $\rho$ is commonly used in statistics books to denote the correlation coefficient for a list of pairs. The reason is that $\rho$ is the Greek letter for $r$, the first letter of regression. Soon we will learn about the connection between correlation and regression.
+
+Unrelated variables will have 0 correlation. If instead the quantities vary together, we get a positive correlation; if they vary in opposite directions, we get a negative correlation. Note that the correlation is between -1 and 1. So, for example, the correlation between a variable and itself is 1 and the correlation between a variable and its negative is -1.  For other pairs, the correlation is between -1 and 1. For instance, the correlation between father and son's heights is about 0.5:
+
+```{r}
+galton_heights %>% summarize(cor(father, son))
+```
+
+To see what the data looks like for different values of $\rho$, here are six examples of pairs with correlations ranging from -0.9 to 0.99:
+
+```{r, echo=FALSE}
+n <- 250
+cors <- c(-0.9,-0.5,0,0.5,0.9,0.99)
+sim_data <- lapply(cors,function(r) MASS::mvrnorm(n,c(0,0), matrix(c(1,r,r,1),2,2)))
+sim_data <- Reduce(rbind, sim_data)
+sim_data <- cbind( rep(cors, each=n), sim_data)
+colnames(sim_data) <- c("r","x","y")
+as.data.frame(sim_data) %>% ggplot(aes(x,y)) +facet_wrap(~r) + geom_point() +geom_vline(xintercept = 0,lty=2) + geom_hline(yintercept = 0,lty=2) 
+```
+
+
+### Sample correlation is a random variable
+
+Before we continue connecting correlation to regression, let's remind ourselves about random variability.
+
+In most data science applications, we do not observe the population but rather a sample. As with the average and standard deviation, the **sample** correlation is the most commonly used estimate of the population correlation. This implies that the correlation we compute and use as a summary is a random variable.
+
+By way of illustration, let's assume that the `r nrow(galton_heights)` pairs of fathers and sons is our entire population. A less fortunate geneticist can only afford measurements from a random sample of 25 pairs. The sample correlation of the sample:
+
+```{r}
+R <- sample_n(galton_heights, 25, replace = TRUE) %>% 
+     summarize(cor(father, son))
+```
+
+is a random variable. We can run a simulation to see its distribution:
+
+```{r}
+B <- 1000
+N <- 25
+R <- replicate(B, {
+     sample_n(galton_heights, N, replace = TRUE) %>% 
+     summarize(r=cor(father, son)) %>% .$r
+})
+data.frame(R) %>% ggplot(aes(R)) + geom_histogram(binwidth = 0.05, color = "black")
+```
+
+We see that the expected value is the population correlation:
+
+```{r}
+mean(R)
+```
+
+and that it has a relatively high standard error relative to its size.
+
+```{r}
+sd(R)
+```
+
+A large standard deviation, relative to its difference from 0, is something to keep in mind when interpreting correlations.
+
+Also note that because the sample correlation is an average of independent draws, the Central Limit Theorem actually applies. Therefore, for large enough $N$, the distribution of `R` is approximately normal with expected value $\rho$. 
+
+
+In our example, $N=25$ does not seem to be large enough to make the approximation a good one:
+
+```{r}
+data.frame(R) %>% ggplot(aes(sample=R)) + 
+                  stat_qq() + 
+                  geom_abline(intercept = mean(R), 
+                  slope = sqrt((1-mean(R)^2)/(N-2)))
+```
+
+If you increase $N$, you will see the distribution converging to a normal distribution.
+
+### When is correlation a useful summary?
+
+Correlation is not always a good summary of the relationship between two variables. A famous example used to illustrate this, are the following four artificial datasets, referred to as Anscombe's quartet. All these pairs have a correlation of 0.82:
+
+```{r, echo=FALSE}
+library(tidyr)
+anscombe %>% mutate(row = seq_len(n())) %>%
+             gather(name, value, -row) %>% 
+             separate(name, c("axis", "group"), sep=1) %>%
+             spread(axis, value) %>% select(-row) %>%
+             ggplot(aes(x,y)) +
+             facet_wrap(~group)  +
+             geom_smooth(method="lm", fill=NA, fullrange=TRUE, color="blue") +
+             geom_point(bg="orange",color="red",cex=3,pch=21)
+```
+
+Correlation is only meaningful in a particular context - when the relationship between the 2 variables is **linear**. To help us understand when it is meaningful, as a summary statistic, we will get back to the example of predicting son's height using the father's height. This will help motivate and define linear regression. We start by demonstrating how correlation can be useful for prediction.
+
+## Stratification
+
+Suppose we are asked to guess the height of a randomly selected son and we don't know his father's height. Because the distribution of sons' heights is approximately normal, we know the average height, `r mean(galton_heights$son)`, is the value with the highest proportion and would be the prediction with the best chances of minimizing the error. But what if we are told that the father is 72 inches tall - do we sill guess `r mean(galton_heights$son)` for the son? 
+
+It turns out that if we were able to collect data from a very large number of fathers that are 72 inches, the distribution of their sons' heights would be normally distributed. This implies that the average of this distribution would be our best prediction. Can we figure out what this average is?
+
+We call this approach _stratifying_ or _conditioning_. The distribution of the strata is called the _conditional distribution_ and the average of this distribution the _conditional average_. In our case we are computing the average son height _conditional_ on the father being 72 inches tall. A challenge when using this approach in practice is that for continuous data, we don't have many data points matching exactly one value. For example, we have only: 
+
+```{r}
+sum(galton_heights$father == 72)
+```
+
+fathers who are exactly 72 inches. If we change the number to 72.5 we only get 
+
+```{r}
+sum(galton_heights$father == 72.5)
+```
+
+The small sample sizes will result in averages with large standard errors that are not useful for prediction. 
+
+For now, we will take the approach of creating strata of fathers with very similar heights. Specifically, we will round father heights to the nearest inch and assume that they are all 72 inches. If we do this, we end up with the following prediction for the son of a father that is 72 inches tall:
+
+```{r}
+conditional_avg <- galton_heights %>% 
+                   filter(round(father) == 72) %>%
+                   summarize(avg = mean(son)) %>% .$avg
+conditional_avg
+```
+
+
+Note that a 72 inch father is taller than average. Specifically, `(72 - mean(galton_heights$father))`/`sd(galton_heights$father)` =
+`r (72 -mean(galton_heights$father))/sd(galton_heights$father)` standard deviations taller than the average father. Our prediction `r conditional_avg` is also taller than average, but only `r (conditional_avg - mean(galton_heights$son)) /sd(galton_heights$son)` standard deviations larger than the average son. The sons of 72 inch fathers have _regressed_ some to the average height. We notice that the reduction in how much taller is about 0.5 standard deviations, which happens to be the correlation. As we will see, this is not a coincidence.
+
+If we want to make a prediction of any height, not just 72, we could apply the same approach to each strata. Stratification followed by boxplots lets us see the distribution of each group:
+
+```{r boxplot-1, fig.cap="Boxplot of son heights stratified by father heights."}
+galton_heights %>% mutate(father_strata = factor(round(father))) %>% 
+                   ggplot(aes(father_strata, son)) + 
+                   geom_boxplot() + 
+                   geom_point()
+```
+
+Not surprisingly, the centers of the groups are increasing with height. 
+
+```{r boxplot-2, fig.cap="Boxplot of son heights stratified by father heights."}
+galton_heights %>% mutate(father = round(father)) %>% 
+                   group_by(father) %>%
+                   summarize(son_conditional_avg = mean(son)) %>%
+                   ggplot(aes(father, son_conditional_avg)) + 
+                   geom_point()
+```
+
+### The regression line
+
+Correlation is useful for summarizing the strength and direction of a linear relationship as a single value. Linear regression gives an equation that can be used to predict outcomes random variable $Y$ based on known values of $X=x$. It also allows us to interpret the impact of a unit change in $X$ on $Y$. The regression line for predicting $Y$ based on $X$ takes on the form: 
+
+$$
+y= b + mx 
+$$
+We can obtain least squares estimates (more on this later) for the slope $m$ and intercept $b$ using the `lm` function (more on this later too) to add the regression line to the original data:
+
+```{r}
+fit <- lm(son ~ father, data = galton_heights)
+
+b <- fit$coefficients[1]
+m <-  fit$coefficients[2]
+
+galton_heights %>% ggplot(aes(father, son)) + 
+                   geom_point(alpha = 0.5) +
+                   geom_abline(intercept = b, slope = m) 
+```
+
+
+### Goodness-of-fit and $R^2$
+
+The $R^2$, also known as the coefficient of determination, is a measure of goodness-of-fit for linear regression. More generally, goodness-of-fit measures how well a statistical model fits the data. Specifically, the $R^2$ is the proportion of the variance in $Y$ that is explained by $X$ in a linear model. Values range between 0 and 1, with 0 indicating that the model explains none of the variability in $Y$ and 1 indicating that the model explains all of the variability in $Y$. While larger $R^2$ values generally indicate that your model fits the data well, note that just like the correlation $\rho$, the $R^2$ is only able to describe linear relationships. 
+
+You can access the $R^2$ for a fitted `lm` object through the `r.squared` slot saved by the `summary` function, e.g. 
+
+```{r}
+summary(fit)$r.squared
+```
+
+### Birthweight example
+
+Now let's turn our attention back to the original problem: predicting birthweight. Since participation in the First Steps program in dichotomous, let's turn our attention to the gestational age variable. First, notice that the birthweight and gestational age data appear to be fairly normal:
+
+```{r}
+data <- read.table("KingCounty2001_data.txt", header = TRUE)
+p <- data %>% ggplot(aes(gestation, bwt)) +
+              geom_point(alpha = 0.3) +
+              ylab("Birth weight (grams)") +
+              xlab("Gestation (weeks)")
+p
+```
+
+We can see that the histograms of (most) strata confirm that the conditional distributions are normal:
+
+```{r, warning=FALSE, message=FALSE}
+data %>% filter(gestation %in% 34:42 ) %>%
+         ggplot(aes(bwt)) +
+         geom_histogram(color="black") +
+         xlab("Birth weight (grams)") +
+         facet_wrap(gestation~.)
+```
+
+
+Now we are ready to use linear regression to predict birthweight if we know the gestational age of the infant: 
+
+```{r}
+reg_line <- lm(bwt ~ gestation, data = data)
+
+p + geom_abline(intercept = reg_line$coefficients[1], 
+                slope = reg_line$coefficients[2], color = "blue")
+```
+
+The ggplot2 function `geom_smooth` computes and adds a regression line to plot along with confidence intervals, which we also learn about later. We use the argument `method = "lm"` which stands for _linear model_, the title of the next section.
+
+```{r}
+p + geom_smooth(method = "lm")
+```
+
+In the example above, the slope is `r reg_line$coefficients[2]`. So this tells us that for every additional week of gestation, the average birthweight increases by ``r reg_line$coefficients[2]` grams.

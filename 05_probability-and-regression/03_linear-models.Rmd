@@ -1,0 +1,253 @@
+## Linear models 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(1)
+options(digits = 3)
+library(tidyverse)
+library(dslabs)
+ds_theme_set()
+library(HistData)
+data("GaltonFamilies")
+galton_heights <- GaltonFamilies %>%
+  filter(childNum == 1 & gender == "male") %>%
+  select(father, childHeight) %>%
+  rename(son = childHeight)
+```
+
+## Linear Models
+
+Since Galton's original development, regression has become one of the most widely used tools in data science. One reason for this has to do with the fact that regression permits us to find relationships between two variables while adjusting for others, i.e., confounders. This has been particularly popular in fields where randomized experiments are hard to run, such as Economics and Epidemiology. When we are not able to randomly assign each individual to a treatment or control group, confounding is particularly prevalent. For example, consider estimating the effect of eating fast food on life expectancy using data collected from a random sample of people in a jurisdiction. Fast food consumers are more likely to be smokers, drinkers, and have lower incomes. Therefore, a naive regression model may lead to an overestimate of a negative health effect. So how do we adjust for confounding in practice?
+
+We note that "linear" here does not refer to lines exclusively, but rather to the fact that the **conditional expectation is linear combinations of known quantities**. In math a linear combination is an expression of variables, say $x$, $y$ and $z$, and a combination of constant terms that multiply them and add a shift, for example, $2 + 3x - 4y + 5z$. So when we write a linear model like this:
+$$
+\mathbb{E}[Y|X = x] = \beta_0 + \beta_1 x_1 + \beta_2 x_2
+$$
+
+$\beta_0 + \beta_1 x_1 + \beta_2 x_2$ is a linear combination of $x_1$ and $x_2$. The simplest linear model is a constant $\beta_0$, the second simplest is a line $\beta_0 + \beta_1 x$. 
+
+For Galton's data we would denote the $N$ observed father's heights with $x_1, \dots, x_n$. Then we would model the $N$ son heights we are trying to predict with 
+
+$$ 
+Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i, \, i=1,\dots,N 
+$$
+
+where $x_i$ is the father's height, which is fixed (not random) due to the conditioning, and $Y_i$ is the random son's height that we want to predict. We further assume that $\varepsilon_i$ are independent from each other, have expected value 0 and the standard deviation, call it $\sigma$, does not depend on $i$. We know the $x_i$, but to have a useful model for prediction we need $\beta_0$ and $\beta_1$. We estimate these from the data. Once we do we can predict son's heights for any father's height $x$. 
+
+One reason linear models are popular is that they are interpretable. In the case of Galton's data we can interpret the data like this: due to inherited genes, the son's height prediction grows by $\beta_1$ for each inch we increase the father's height $x$. Because not all sons with fathers of height $x$ are of equal height, we need the term $\varepsilon$, which explains the remaining variability. This remaining variability includes the mother's genetic effect, environmental factors, and other biological randomness. 
+
+Note that, given how we wrote the model above, the intercept $\beta_0$ is not very interpretable as it is the predicted height of a son with a father with no height. Due to regression to the mean the prediction will usually be a bit larger than 0. To make the intercept parameter more interpretable we can rewrite the model slightly as
+
+$$ 
+Y_i = \beta_0 + \beta_1 (x_i - \bar{x}) + \varepsilon_i, \, i=1,\dots,N 
+$$
+
+thus changing $x_i$ to $x_i - \bar{x}$ in which case $\beta_0$ would be the height when $x_i = \bar{x}$ which is the son of an average height father.
+
+## Least Squares Estimates (LSE)
+
+For linear models to be useful we have to estimate the unknown $\beta$s. The standard approach in science is to find the values that minimize the distance of the fitted model to the data. The following is called the least squares (LS) equation and we will see it often in this lecture. For Galton's data we would write
+
+$$ 
+RSS = \sum_{i=1}^n \left\{  Y_i - \left(\beta_0 + \beta_1 x_i \right)\right\}^2 
+$$
+
+This quantity is called the residual sum of squares (RSS). Once we find the values that minimize the RSS, we will call the values the least squares estimates (LSE) and denote them with $\hat{\beta}_0$ and $\hat{\beta}_1$. 
+
+Let's write a function that computes the RSS for any pair of values  $\beta_0$ and $\beta_1$:
+
+```{r}
+rss <- function(beta0, beta1, data){
+  resid <- galton_heights$son - (beta0+beta1*galton_heights$father)
+  return(sum(resid^2))
+}
+```
+
+So for any pair of values we get an RSS. Here is a plot of the RSS as a function of $\beta_1$ when we keep the $\beta_0$ fixed at 25. 
+
+```{r rss-versus-estimate, fig.cap="Residual sum of squares obtained for several values of the parameters."}
+beta1 = seq(0, 1, len=nrow(galton_heights))
+results <- data.frame(beta1 = beta1,
+                      rss = sapply(beta1, rss, beta0 = 25))
+results %>% ggplot(aes(beta1, rss)) + 
+            geom_line() + 
+            geom_line(aes(beta1, rss), col=2)
+```
+
+We can see a clear minimum for $\beta_1$ at around 0.65. However, this minimum for $\beta_1$ is for when $\beta_0 = 25$. But we don't know if it minimizes the equation across all pairs of ($\beta_0, \beta_1$). 
+
+Trial and error here is not going to work. Instead, we will use calculus: take the partial derivatives, set them to 0 and solve. Of course, if we have many parameters, these equations can get rather complex. But there are functions in R that do these calculations for us. We will learn these soon. To learn the mathematics behind this you can consult a book on linear models. 
+
+### The `lm` function
+
+In R we can obtain the least squares estimates using the the `lm` function. To fit the model
+
+$$
+Y_i = \beta_0 + \beta_1 x_i + \varepsilon_i
+$$
+
+with $Y_i$ the son's height and $x_i$ the father's height we write:
+
+```{r}
+fit <- lm(son ~ father, data = galton_heights)
+fit
+```
+
+and obtain the lest squares estimates. The general way we use `lm` is by using the character `~` to let `lm` know which is the variable we are predicting (left) and which we are using to predict (right). The intercept is added automatically to the model that will be fit. 
+
+The object `fit` includes more information about the fit. We can use the function `summary` to extract more of this information.
+
+```{r}
+summary(fit)
+```
+
+To understand some of the columns included in this summary we need to remember that the LSE are random variables. Mathematical statistics gives us some ideas of the distribution of these random variables
+
+
+### The `summary` function
+
+The `summary` function reports standard errors, t-statistics (`t value`), and p-values (`Pr(>|t|)`) for each of the coefficient estimates. Mathematical theory tells us that the LSE divided by their standard error, $\hat{\beta}_0 / \hat{\mbox{SE}}(\hat{\beta}_0 )$ and $\hat{\beta}_1 / \hat{\mbox{SE}}(\hat{\beta}_1 )$ follow a t-distribution with $N-p$ degrees of freedom with $p$ the number of parameters in our model. In the case of heights, $p=2$. The two p-values are testing the null hypotheses that $\beta_0 = 0$ and $\beta_1 = 0$ respectively. Note that, as we described previously, for large enough $N$ the CLT works and the t-distribution becomes almost the same as the normal distribution. Also note that we can construct confidence intervals, but we will soon learn about broom, an add-on package that makes this easy.
+
+We note that although we do not show examples here, hypothesis testing with regression models is very commonly used in Epidemiology and Economics to make statements such as "the effect of A on B was statistically significant after adjusting for X, Y and Z". Note that several assumptions have to hold for these statements to hold.
+
+### Predicted values are random variables 
+
+Once we fit our model, we can obtain predictions of $Y$ by plugging the estimates into the regression model. For example, if the father's height is $x$, then our prediction $\hat{Y}$ for the son's height will be:
+
+$$\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 x$$
+
+When we plot $\hat{Y}$ versus $x$ we see the regression line.
+
+Note that the prediction $\hat{Y}$ is also a random variable and mathematical theory tells us what the standard errors are. If we assume the errors are normal or have a large enough sample size, we can use theory to construct confidence intervals as well. In fact, the ggplot2 layer `geom_smooth(method = "lm")` that we previously used plots $\hat{Y}$ and surrounds it by confidence intervals:
+
+```{r}
+galton_heights %>% ggplot(aes(son, father)) +
+                   geom_point() +
+                   geom_smooth(method = "lm")
+```
+
+The R function `predict` takes an `lm` object as input and returns the prediction:
+
+
+```{r}
+galton_heights %>% 
+  mutate(Y_hat = predict(lm(son ~ father, data = .))) %>%
+  ggplot(aes(father, Y_hat)) +
+  geom_line()
+```
+
+If requested, the standard errors and other information from which we can construct confidence intervals is given:
+
+```{r}
+fit <- galton_heights %>% lm(son ~ father, data = .) 
+Y_hat <- predict(fit, se.fit = TRUE)
+names(Y_hat)
+```
+
+
+## Advanced dplyr: tibbles
+
+Let's go back to our birthweight example. In a previous lecture we saw that the histograms of (most) gestation strata confirm that the conditional distributions are normal:
+
+```{r}
+data <- read.table("KingCounty2001_data.txt", header = TRUE)
+```
+
+
+```{r, warning=FALSE, message=FALSE}
+data %>% filter(gestation %in% 34:42 ) %>%
+         ggplot(aes(bwt)) +
+         geom_histogram(color="black") +
+         xlab("Birth weight (grams)") +
+         facet_wrap(gestation~.)
+``` 
+
+We can estimate the regression line to predict birthweight from gestational age using `lm`. 
+
+```{r}
+m <- lm(bwt ~ gestation, data = data)
+summary(m)
+```
+
+Going back to the task of investigating the question of whether participation in ‘First Steps’ increases birthweights, we can incorporate participation in the program in a couple of ways. First, we can fit the same regression model we did above for each group separately, i.e. fit one model for those who participated and one for those who did not. 
+
+First, note that if we try to use the `lm` function to get the estimated slopes like this:
+
+```{r}
+data %>% group_by(firstep) %>%
+         lm(bwt ~ gestation, data = .) %>%
+        coef()
+```
+
+we don't get what we want. The `lm` function ignored the `group_by`. This is expected because **`lm` is not part of the tidyverse and does not know how to handle the outcome of `group_by`**, a grouped _tibble_.
+
+The __tidyverse__ functions know how to interpret grouped tibbles. Furthermore, to facilitate stringing commands through the pipe `%>%`, __tidyverse__ functions consistently return data frames, since this assures that the output of a function is accepted as the input of another. 
+But most R functions do not recognize grouped tibbles nor do they return data frames. The `lm` function is an example. However, we can write a function that uses `lm` to compute and return the wanted summaries in a data frame and then use the `summarize` function: 
+
+
+```{r}
+get_slope <- function(x, y){
+  fit <- lm(y ~ x)
+  tibble(slope = fit$coefficients[2], 
+         se = summary(fit)$coefficient[2,2])
+}
+data %>%  
+  group_by(firstep) %>%
+  summarize(get_slope(gestation, bwt))
+```
+
+If you think this is all a bit too complicated, you are not alone. To simplify things, we introduce the **broom** package which was designed to facilitate the use of model fitting functions, such as `lm`, with the __tidyverse__.
+
+
+## Broom
+
+Our original task was to provide an estimate and confidence interval for the slope estimates of each strata. The __broom__ package will make this quite easy.
+
+The __broom__ package has three main functions, all of which extract information from the object returned by `lm` and return it in a __tidyverse__ friendly data frame. These functions are `tidy`, `glance`, and `augment`. The `tidy` function returns estimates and related information as a data frame:
+
+```{r}
+library(broom)
+fit <- lm(bwt ~ gestation, data = data)
+tidy(fit)
+```
+
+We can add other important summaries, such as confidence intervals:
+
+```{r}
+tidy(fit, conf.int = TRUE)
+```
+
+Because the outcome is a data frame, we can immediately use it with `summarize` to string together the commands that produce the table we are after. Because a data frame is returned, we can filter and select the rows and columns we want, which facilitates working with __ggplot2__:
+
+```{r do-tidy-example, message=FALSE} 
+data %>% group_by(firstep) %>%
+  summarize(tidy(lm(bwt ~ gestation), conf.int = TRUE)) %>%
+  filter(term == "gestation") %>%
+  select(firstep, estimate, conf.low, conf.high) %>%
+  ggplot(aes(firstep, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_errorbar() +
+  geom_point()
+```
+
+Now we return to discussing our original task of determining if slopes changed. The plot we just made, using `summarize` and `tidy`, shows that the confidence intervals overlap, which provides a nice visual confirmation that our assumption that the slope does not change is safe.
+
+The other functions provided by __broom__, `glance`, and `augment`, relate to model-specific and observation-specific outcomes, respectively. Here, we can see the model fit summaries `glance` returns:
+
+```{r}
+glance(fit)
+```
+
+You can learn more about these summaries in any regression text book. 
+
+We will see an example of `augment` in the next section.
+
+
+
+## Adding covariates
+I decided to run separate models for each participant group in order to present tibbles and the `do` and `tidy` functions. The faster way to investigate the relationship between participation in the 'First Steps' program and birthweight and gestation is to add it as another covariate in the model:
+
+```{r}
+m <- lm(bwt ~ gestation + firstep, data = data)
+summary(m)
+```
+
+From the summary it seems as though participation in the 'First Steps' program is actually associated with an average decrease of 42 grams in birthweight. This result however, is not statistically significant and we have also not considered confounders like race and if the mother was on welfare. We know both of these variables are associated with both birthweight and participation in the program, so they should be incorporated into our model. We'll discuss confounding more in the next lecture file.
