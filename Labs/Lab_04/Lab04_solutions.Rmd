@@ -7,8 +7,8 @@ output: html_document
 
 #### 1. Examine the built-in dataset `ChickWeight`. Which of the following is true:
 
-* **ChickWeight is not tidy: each chick has more than one row.**
-* ChickWeight is tidy: each observation (a weight) is represented by one row. The chick from which this measurement came is one of the variables.
+* ChickWeight is not tidy: each chick has more than one row.
+* **ChickWeight is tidy: each observation (a weight) is represented by one row. The chick from which this measurement came is one of the variables.**
 * ChickWeight is not tidy: we are missing the year column.
 * ChickWeight is tidy: it is stored in a data frame.
 
