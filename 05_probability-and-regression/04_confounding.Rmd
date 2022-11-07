@@ -194,14 +194,14 @@ admissions %>% group_by(gender) %>%
                summarize(total_admitted = round(sum(admitted/100*applicants)), 
                          not_admitted = sum(applicants) - sum(total_admitted)) %>%
                select(-gender) %>% 
-               do(tidy(chisq.test(.)))
+               summarize(tidy(chisq.test(.)))
 ```
 
 But closer inspection shows a paradoxical result. Here are the percent admissions by major:
 
 ```{r}
 admissions %>% select(major, gender, admitted) %>%
-               spread(gender, admitted) %>%
+               pivot_wider(names_from = gender, values_from = admitted) %>%
                mutate(women_minus_men = women - men)
 ```
 
@@ -212,6 +212,7 @@ The paradox is that analyzing the totals suggests a dependence between admission
 So let's define three variables: $X$ is 1 for men and 0 for women, $Y$ is 1 for those admitted and 0 otherwise, and $Z$ quantifies how selective the major is. A gender bias claim would be based on the fact that $\mbox{Pr}(Y=1 | X = x)$ is higher for $x=1$ than $x=0$. But $Z$ is an important confounder to consider. Clearly $Z$ is associated with  $Y$, as the more selective a major, the lower $\mbox{Pr}(Y=1 | Z = z)$. But is major selectivity $Z$ associated with gender $X$?
 
 One way to see this is to plot the total percent admitted to a major versus the percent of women that made up the applicants:
+
 ```{r}
 admissions %>% group_by(major) %>% 
                summarize(major_selectivity = sum(admitted*applicants)/sum(applicants),
@@ -225,7 +226,7 @@ There seems to be an association. The plot suggests that women were much more li
 
 #### Confounding explained graphically
 
-The following plot shows the number of applicants that were admitted and those that were not by:
+The following plot shows the number of applicants that were admitted and those that were not:
 
 ```{r confounding, echo=FALSE}
 admissions %>%
@@ -330,9 +331,9 @@ two_by_two <- research_funding_rates %>%
                         no_men = applications_men - awards_men, 
                         yes_women = awards_women, 
                         no_women = applications_women - awards_women) %>%
-              gather %>%
+              pivot_longer("yes_men":"no_women", names_to = "key", values_to = "value") %>%
               separate(key, c("awarded", "gender")) %>%
-              spread(gender, value)
+              pivot_wider(names_from = gender, values_from = value)
 two_by_two
 ```
 
@@ -365,9 +366,9 @@ dat <- research_funding_rates %>%
        rename(success_total = success_rates_total,
               success_men = success_rates_men,
               success_women = success_rates_women) %>%
-        gather(key, value, -discipline) %>%
+        pivot_longer(-discipline, names_to = "key", values_to = "value") %>%
         separate(key, c("type", "gender")) %>%
-        spread(type, value) %>%
+        pivot_wider(names_from = "type", values_from = "value") %>%
         filter(gender != "total") %>%
         mutate(discipline = reorder(discipline, applications, sum)) 
 
@@ -436,7 +437,7 @@ Now let's look at the effect of the First Steps program stratified by race categ
 
 ```{r}
 by_race <- data %>% group_by(race) %>%
-         do(tidy(lm(bwt ~ gestation + firstep + age + welfare + smoker + drinker + wpre + wgain + education, data = .), conf.int = TRUE))
+         summarize(tidy(lm(bwt ~ gestation + firstep + age + welfare + smoker + drinker + wpre + wgain + education, data = .), conf.int = TRUE))
 by_race[c(3, 13, 23, 33, 42),]
 ```
 
