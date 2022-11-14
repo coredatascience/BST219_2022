@@ -954,7 +954,7 @@ confusionMatrix(data = as.factor(y_hat_logit),
                 reference = test_set$status, positive = "Dead")
 ```
 
-##7 Naive Bayes
+## Naive Bayes
 
 The best we can do in a Machine Learning problem is when we actually know
 
@@ -1004,7 +1004,7 @@ confusionMatrix(data = as.factor(y_hat_nb),
                 reference = test_set$status, positive = "Dead")
 ```
 
-Our naive Bayes estimate $\hat{p}(x)$ looks a lot like our logistic regression estimate:
+Our naive Bayes estimate $\hat{p}(x)$ looks somewhat like our logistic regression estimate:
 
 ```{r conditional-prob-glm-fit-2, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- melanoma %>% 
@@ -1024,11 +1024,8 @@ tmp %>%
 ```
 
 
-In fact, we can show that the naive Bayes approach is similar to the logistic regression prediction mathematically. However, we leave the demonstration to a more advanced text: such as [this one](https://web.stanford.edu/~hastie/Papers/ESLII.pdf). We can see that they are similar empirically:
+In fact, we can show that the naive Bayes approach is similar to the logistic regression prediction mathematically. However, we leave the demonstration to a more advanced text: such as [this one](https://web.stanford.edu/~hastie/Papers/ESLII.pdf).
 
-```{r}
-qplot(p_hat_logit, p_hat_nb) + geom_abline()
-```
 
 
 ## Two Predictors  
