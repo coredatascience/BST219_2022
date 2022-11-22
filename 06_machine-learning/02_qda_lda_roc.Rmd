@@ -35,7 +35,7 @@ For illustrative purposes we created two features: `X_1` is the percent of non-w
 tmp <- lapply( c(37,9,5,28), function(i){
     expand.grid(Row=1:28, Column=1:28) %>%  
       mutate(id=i, label=dat$label[i], id=paste("obs",i),
-             value = unlist(select(dat,pixel0:pixel783)[i,]))
+             value = unlist(dplyr::select(dat,pixel0:pixel783)[i,]))
 })
 tmp <- Reduce(rbind, tmp)
 
@@ -70,7 +70,7 @@ We can see some examples of what these predictors (pixels) are:
 tmp <- lapply( c(37,9,5,28), function(i){
     expand.grid(Row=1:28, Column=1:28) %>%  
       mutate(id=i, label=paste0("obs ",i,": X_1 = ",round(dat$X_1[i],2),", X_2 = ",round(dat$X_2[i],2)),
-             value = unlist(select(dat,pixel0:pixel783)[i,]))
+             value = unlist(dplyr::select(dat,pixel0:pixel783)[i,]))
 })
 tmp <- Reduce(rbind, tmp)
 
