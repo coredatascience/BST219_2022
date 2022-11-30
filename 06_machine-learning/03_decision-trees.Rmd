@@ -12,7 +12,7 @@ We have described two types of machine learning algorithms. Linear approaches (g
 
 ## The Curse of Dimensionality
 
-A useful way of understand the curse of dimensionality is by considering how large we have to make a neighborhood/window to include a given percentage of the data. For example, suppose we have one continuous predictor with equally spaced points in the [0,1] interval and we want to create windows that include 1/10-th of the data. Then it's easy to see that our windows have to be of size 0.1:
+A useful way of understanding the curse of dimensionality is by considering how large we have to make a neighborhood/window to include a given percentage of the data. For example, suppose we have one continuous predictor with equally spaced points in the [0,1] interval and we want to create windows that include 1/10-th of the data. Then it's easy to see that our windows have to be of size 0.1:
 
 ```{r, fig.width=10, fig.height=1}
 rafalib::mypar()
@@ -192,12 +192,14 @@ preds <- predict(fit_rpart, newdata = Boston[-train,])
 test = Boston[-train, "medv"]
 ```
 
-Note that the output indicates only 3 of the predictors were used to construct the tree. Let's plot it and take a look:
+Let's plot the resulting tree:
 
 ```{r}
 rpart.plot(fit_rpart, digits = 4)
 ```
+
 We get the same predictions as we did using the `tree` function. We can also calculate the MSE and check that it is also the same:
+
 ```{r}
 mean((preds-test)^2)
 ```
