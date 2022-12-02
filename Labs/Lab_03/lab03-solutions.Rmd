@@ -35,12 +35,14 @@ This lab (particularly questions 10 and 11) borrows ideas and code from Peter El
 Note that `group_by(county)` ensures that the new cases are calculated within each county, and `arrange(date)` sorts the dates in ascending order, to make sure that that the lags are calculated correctly. 
 
 ```{r}
-georgia_counties = us_counties %>%
+georgia_counties = 
+  us_counties %>%
   filter(state == "Georgia") %>%
   group_by(county) %>%
   arrange(date) %>%
   mutate(new_cases = cases - lag(cases)) %>% 
   ungroup()
+
 ```
 
 
@@ -61,6 +63,11 @@ Then, we want to create and save the three histograms. The `bins` argument contr
 p1 = georgia_counties_may9 %>% 
   ggplot(aes(x = cases)) + 
   geom_histogram(bins = 10, fill = "black") + 
+  labs(title = 'Histogram of Georgia Cases',
+       subtitle = '10 Bins',
+       x = 'Cases',
+       y = 'Count')
+       
   ggtitle("10 bins") + 
   xlab("Cases") + 
   ylab("")
