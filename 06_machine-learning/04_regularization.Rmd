@@ -4,6 +4,7 @@ library(caret)
 library(glmnet)
 library(GGally)
 library(dslabs)
+library(dplyr)
 ds_theme_set()
 ```
 
@@ -113,7 +114,7 @@ The `glmnet` function from the `glmnet` package fits ridge and lasso for both re
 
 ```{r}
 # Create design matrix for predictors (except for intercept)
-X = model.matrix(~ .-1, meps %>% select(all_of(predictors)))
+X = model.matrix(~ .-1, meps %>% dplyr::select(all_of(predictors)))
 # Response variable
 y = meps$Anyhosp2017
 
@@ -126,20 +127,20 @@ X_test = X[-train_idx,]
 y_test = y[-train_idx]
 ```
 
-We're ready to try fitting some models using `glmnet`! Our response variable is binary, so we want to specify `family = "binomial"`, similarly to the `glm` function. (The default is `"gaussian"`, for regression.) If we pass in `lambda = 0`, this call is equivalent to the usual logistic regression. (Why?)
+We're ready to try fitting some models using `glmnet`! Our response variable is binary, so we want to specify `family = "binomial"`, similarly to the `glm` function. (The default is `"gaussian"`, for regression.) If we pass in `lambda = 0`, this call is equivalent to the usual logistic regression. 
 
 ```{r}
 fit_logistic = glmnet(X_train, y_train, family = "binomial", lambda = 0)
 ```
 
-In order to actually shrink our coefficients, we need to pass in one or more non-zero values to the `lambda` argument. Or, if we don't specify anything at all, `glmnet` will automatically generate a grid of 100 $\lambda$ values to try. The key parameter to watch out for is `alpha`. If we want to fit a ridge regression model, we set `alpha = 1`. If we want lasso, we set `alpha = 0`. 
+In order to actually shrink our coefficients, we need to pass in one or more non-zero values to the `lambda` argument. Or, if we don't specify anything at all, `glmnet` will automatically generate a grid of 100 $\lambda$ values to try. The key parameter to watch out for is `alpha`. If we want to fit a ridge regression model, we set `alpha = 0`. If we want lasso, we set `alpha = 1`. 
 
 ```{r}
-fit_ridge = glmnet(X_train, y_train, family = "binomial", alpha = 1)
-fit_lasso = glmnet(X_train, y_train, family = "binomial", alpha = 0)
+fit_ridge = glmnet(X_train, y_train, family = "binomial", alpha = 0)
+fit_lasso = glmnet(X_train, y_train, family = "binomial", alpha = 1)
 ```
 
-`glmnet` has many, many more arguments that you can play around with, but the defaults are usually reasonable for most scenarios. Calling `plot` on a fitted `glmnet` object will plot the coefficients for the sequence of $\lambda$ values used by the model. Setting `xvar = "lambda"` plots the log of the $\lambda$s on the x-axis; see the documentation for `plot.glmnet` for other x-axis options. The ridge regression coefficient plot shows most of the coefficients starting out at non-zero values for small values of lambda, but they eventually all get shrunk to zero when lambda is sufficiently large. 
+`glmnet` has many, many more arguments that you can play around with, but the defaults are usually reasonable for most scenarios. Calling `plot` on a fitted `glmnet` object will plot the coefficients for the sequence of $\lambda$ values used by the model. Setting `xvar = "lambda"` plots the log of the $\lambda$s on the x-axis; see the documentation for `plot.glmnet` for other x-axis options. The ridge regression coefficient plot shows most of the coefficients starting out at non-zero values for small values of lambda, but they eventually all get shrunk to almost zero when lambda is sufficiently large. 
 
 ```{r}
 plot(fit_ridge, xvar = "lambda")
@@ -174,7 +175,7 @@ rownames(ridge_zero_coef) = c("min", "1se")
 ridge_zero_coef
 ```
 
-For the lasso cross-validation, the `lambda.min` model shrinks 70% of the coefficients to zero and the `lambda.1se` model shrinks 86% of the coefficients to zero. This means that only 6 predictors remain in the later case! 
+For the lasso cross-validation, the `lambda.min` model shrinks 70% of the coefficients to zero and the `lambda.1se` model shrinks 86% of the coefficients to zero. This means that only 6 predictors remain in the latter case! 
 
 ```{r}
 cv_lasso = cv.glmnet(X_train, y_train, family = "binomial", alpha = 1)
