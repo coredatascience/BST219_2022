@@ -40,3 +40,6 @@ vignettes/*.pdf
 
 *personal*.Rmd
 *personal*.html
+
+# .DS_Store
+*.DS_Store
