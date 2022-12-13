@@ -1,0 +1,267 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Data Science Next Steps},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Data Science Next Steps}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+\hypertarget{a.-skills-development}{%
+\subsection{A. Skills Development}\label{a.-skills-development}}
+
+\begin{itemize}
+\tightlist
+\item
+  Linear and Matrix Algebra
+\item
+  Diversify your Programming Languages (Python, SQL, C++, Java, etc.)
+\item
+  Kaggle competitions
+\item
+  \href{https://www.computefest.seas.harvard.edu/}{Computefest}
+\item
+  \href{https://www.meetup.com/topics/data-science/us/ma/boston/?_cookie-check=nhT68rU50hwPaQWQ}{Data
+  Science Meetups in Boston}
+\end{itemize}
+
+\hypertarget{b.-spring-data-science-courses}{%
+\subsection{B. Spring Data Science
+Courses}\label{b.-spring-data-science-courses}}
+
+\hypertarget{bst-263---statistical-learning-full-spring}{%
+\subsubsection{BST 263 - Statistical Learning (Full
+Spring)}\label{bst-263---statistical-learning-full-spring}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Language: R or Python}
+\item
+  Material: \href{https://www.statlearning.com/}{An Introduction to
+  Statistical Learning}
+\item
+  Additional Reading:
+  \href{https://web.stanford.edu/~hastie/Papers/ESLII.pdf}{The Elements
+  of Statistical Learning}
+\item
+  Probability Basics
+\item
+  Assessing Model Accuracy
+\item
+  Linear and Logistic Regression
+\item
+  Classification
+\item
+  Cross-validation and bootstrap
+\item
+  Subset selection, Penalty-based methods
+\item
+  Ridge regression and LASSO
+\item
+  Dimension Reduction
+\item
+  Polynomial Regression
+\item
+  Step functions and Basis functions
+\item
+  Generalized Additive Models (GAMs)
+\item
+  Classification and Regression Trees (CART)
+\item
+  Bagging and Random Forests
+\item
+  Ensembles
+\item
+  Support Vector Machines
+\item
+  Unsupervised Learning
+\item
+  Bayesian Methods
+\end{itemize}
+
+\hypertarget{bst-261---data-science-2-spring-2}{%
+\subsubsection{BST 261 - Data Science 2 (Spring
+2)}\label{bst-261---data-science-2-spring-2}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Language: Python}
+\item
+  Material: \href{http://www.deeplearningbook.org/}{Deep Learning},
+  \href{https://www.manning.com/books/deep-learning-with-python-second-edition?query=deep\%20learning\%20with\%20python\&gclid=Cj0KCQiA47GNBhDrARIsAKfZ2rB4TNLnN4OKdz7v98dkQOUrr7C0Oaitr2SpsTFkpJqS8nT0AgdN1HwaArijEALw_wcB}{Deep
+  Learning with Python}
+\item
+  Brief review of Python 3
+\item
+  Brief review of Linear Algebra and Probability
+\item
+  Brief review of Machine Learning
+\item
+  Feedforward Neural Networks
+\item
+  Convolutional Neural Networks
+\item
+  Recurrent Neural Networks
+\item
+  Generative Adversarial Networks (GANs)
+\item
+  Reinforcement Learning
+\item
+  Transfer Learning
+\item
+  Hyperparameter Tuning
+\item
+  Model Selection
+\end{itemize}
+
+\hypertarget{bst-234---introduction-to-data-structures-and-algorithms-full-spring}{%
+\subsubsection{BST 234 - Introduction to Data Structures and Algorithms
+(Full
+Spring)}\label{bst-234---introduction-to-data-structures-and-algorithms-full-spring}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Language: Python}
+\item
+  Overview of numerical analysis material
+\item
+  Concepts of Algorithms, Complexity and Sorting Algorithms
+\item
+  Data Structures and Heapsort
+\item
+  Parallel Programming
+\item
+  Greedy Algorithms and Dynamic Programming
+\item
+  Numerical Stability
+\item
+  (Pseudo) Random Number Generation
+\item
+  Efficient Algorithms for Linear Algebra
+\item
+  Least-Squares Problem, Eigenvalue Decompositions
+\item
+  Algorithms for Numerical Integration, MC-Integration, Importance
+  Sampling
+\item
+  Graphs and Network Algorithms
+\end{itemize}
+
+\hypertarget{c.-other-courses}{%
+\subsection{C. Other Courses}\label{c.-other-courses}}
+
+\begin{itemize}
+\tightlist
+\item
+  BST 262: Computing for Big Data (only offered in Fall 2)
+\item
+  BST 267: Introduction to Social and Biological Networks (only offered
+  in Fall 2)
+\item
+  APMTH 120: Applied Linear Algebra and Big Data (offered in Spring,
+  main campus)
+\item
+  Other machine learning and NLP courses at Harvard and MIT
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Caution: these tend to be very difficult
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{d.-data-science-applications}{%
+\subsection{D. Data Science
+Applications}\label{d.-data-science-applications}}
+
+\begin{itemize}
+\tightlist
+\item
+  \href{https://news.stanford.edu/2017/11/15/algorithm-outperforms-radiologists-diagnosing-pneumonia/}{Diagnosing
+  Pneumonia}
+\item
+  \href{https://www.sciencebuddies.org/blog/artificial-intelligence-and-cancer-diagnosis-meet-the-2012-google-science-fair-winner}{Tumor
+  Classification}
+\item
+  \href{https://www.forbes.com/sites/oreillymedia/2012/08/20/data-science-and-the-health-care-revolution/\#33d787f129f7}{Precision
+  Medicine}
+\item
+  \href{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6225344/}{Image
+  Denoising}
+\item
+  \href{https://www.hsph.harvard.edu/onnela-lab/}{Digital Phenotyping}
+\end{itemize}
+
+\hypertarget{e.-become-a-ta}{%
+\subsection{E. Become a TA}\label{e.-become-a-ta}}
+
+We are in desperate need for TAs for our data science courses at Harvard
+Chan! Keep this in mind if you're looking for some extra money next year
+😁
+
+\end{document}
